@@ -26,21 +26,30 @@ class ImagePick {
     double _physicalMemory = double.parse((SysInfo.getFreePhysicalMemory() + SysInfo.getFreeVirtualMemory()).toString());
 
     double _currentMemoryInMB = _physicalMemory / decrement;
-    if(_currentMemoryInMB > _memoryMin) {
-      return await getImage(ImagePickConfiguration(
-        imageSource: configuration.picker,
-        maxHeight: configuration.maxHeight,
-        maxWidth: configuration.maxWidth,
-        quality: configuration.quality
-      ));
-    } else {
-      return await getImage(ImagePickConfiguration(
-        imageSource: configuration.camera,
-        maxHeight: configuration.maxHeight,
-        maxWidth: configuration.maxWidth,
-        quality: configuration.quality
-      ));
+    if(configuration.picker.pickerSource == PickerSource.camera) {
+      if(_currentMemoryInMB > _memoryMin) {
+        return await getImage(ImagePickConfiguration(
+          imageSource: configuration.picker,
+          maxHeight: configuration.maxHeight,
+          maxWidth: configuration.maxWidth,
+          quality: configuration.quality
+        ));
+      } else {
+        return await getImage(ImagePickConfiguration(
+          imageSource: configuration.camera,
+          maxHeight: configuration.maxHeight,
+          maxWidth: configuration.maxWidth,
+          quality: configuration.quality
+        ));
+      }
     }
+
+    return await getImage(ImagePickConfiguration(
+      imageSource: ImagePickSourcePicker(pickerSource: PickerSource.gallery),
+      maxHeight: configuration.maxHeight,
+      maxWidth: configuration.maxWidth,
+      quality: configuration.quality
+    ));
   }
 
   Future<PickedFile> _getImageWithImagePicker(ImagePickConfiguration configuration) async {
