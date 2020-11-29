@@ -12,7 +12,7 @@ dependencies:
   path_provider: ^1.6.24
   system_info: ^0.1.3
   # camerawesome: ^0.1.2+1
-  cyblock: ^0.0.1+3
+  cyblock: ^0.0.1+4
   # cyblock: 
   #   git:
   #     url: git://github.com/Cybernetics354/cyblock.git
