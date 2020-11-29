@@ -2,8 +2,10 @@ part of image_pick;
 
 class CameraPickMainView extends StatefulWidget {
   final List<CameraDescription> cameras;
+  final ImagePickConfiguration config;
   CameraPickMainView({
-    @required this.cameras
+    @required this.cameras,
+    @required this.config,
   });
 
   @override
@@ -88,9 +90,31 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
       String imageName = DateTime.now().toString();
 
       try {
-        await _cameraController.takePicture("$path/$imageName.jpg");
-        PickedFile _file = PickedFile("$path/$imageName.jpg");
+        String imgPath = "$path/$imageName.jpg";
+        await _cameraController.takePicture(imgPath);
+
+        // resizing if configured
+        Imagex.Image img = Imagex.decodeImage(new File(imgPath).readAsBytesSync());
+        if ((widget.config.maxWidth > 0 && widget.config.maxWidth < img.width) || (widget.config.maxHeight > 0 && widget.config.maxHeight < img.height)) {
+          bool isResized;
+          if (widget.config.maxWidth > 0 && img.width>= img.height) {
+            img = Imagex.copyResize(img, width: widget.config.maxWidth.toInt());
+            isResized = true;
+
+          } else if (widget.config.maxHeight > 0) {
+            img = Imagex.copyResize(img, height: widget.config.maxHeight.toInt());
+            isResized = true;
+          }
+
+          // minimize unnecessary process
+          if (isResized) {
+            (new File(imgPath)).writeAsBytesSync(Imagex.encodeJpg(img));
+          }
+        }
+
+        PickedFile _file = PickedFile(imgPath);
         _cameraCyblock.insertEvent(CameraEventPickImage(image: _file));
+
       } catch (e) {
         print("Tidak bisa Mengambil gambar");
       }

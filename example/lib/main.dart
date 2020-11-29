@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(MyApp());
-  ImagePick.instance.initializeAvailableCamera();
+  ImagePick.instance.initializeAvailableCamera(500.0);
 }
 
 class MyApp extends StatelessWidget {

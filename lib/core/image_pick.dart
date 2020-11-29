@@ -85,7 +85,7 @@ class ImagePick {
     ImagePickSourceCamera _source = configuration.imageSource;
     if(_cameraDescription != null && _cameraDescription.length != 0) {
       return await Navigator.push(_source.context, MaterialPageRoute(
-        builder: (_) => CameraPickMainView(cameras: _cameraDescription,)
+        builder: (_) => CameraPickMainView(cameras: _cameraDescription, config: configuration)
       ));
     } else {
       throw "Camera tidak ditemukan";
