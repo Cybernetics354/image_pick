@@ -88,11 +88,9 @@ packages:
   cyblock:
     dependency: "direct main"
     description:
-      path: "."
-      ref: master
-      resolved-ref: aac41aa020e3e05936193f795a18daf4cd25080b
-      url: "git://github.com/Cybernetics354/cyblock.git"
-    source: git
+      name: cyblock
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.0.1+3"
   fake_async:
     dependency: transitive
