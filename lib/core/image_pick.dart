@@ -2,7 +2,8 @@ part of image_pick;
 
 class ImagePick {
   static List<CameraDescription> _cameraDescription;
-  static double _memoryMin;
+  static double _memoryPercentage;
+  static WarningPickerCallback warningPicker;
 
   static final ImagePick _singleton = ImagePick._();
   ImagePick._();
@@ -26,8 +27,9 @@ class ImagePick {
     double _physicalMemory = double.parse((SysInfo.getFreePhysicalMemory() + SysInfo.getFreeVirtualMemory()).toString());
 
     double _currentMemoryInMB = _physicalMemory / decrement;
+    double _memoryMinumum = (double.parse(SysInfo.getTotalPhysicalMemory().toString()) / decrement) * _memoryPercentage;
     if(configuration.picker.pickerSource == PickerSource.camera) {
-      if(_currentMemoryInMB > _memoryMin) {
+      if(_currentMemoryInMB > _memoryMinumum) {
         return await getImage(ImagePickConfiguration(
           imageSource: configuration.picker,
           maxHeight: configuration.maxHeight,
@@ -92,9 +94,12 @@ class ImagePick {
     }
   }
 
-  Future initializeAvailableCamera(double memoryMin) async {
+  Future initializeAvailableCamera(double memoryMin, {WarningPickerCallback warningPickerCallback}) async {
     WidgetsFlutterBinding.ensureInitialized();
     _cameraDescription = await availableCameras();
-    _memoryMin = memoryMin;
+    _memoryPercentage = memoryMin;
+    warningPicker = warningPickerCallback;
   }
 }
+
+typedef Future<bool> WarningPickerCallback();

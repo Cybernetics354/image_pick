@@ -1,3 +1,8 @@
+## [0.0.3] - 2020-12-02
+
+* Change from total memory to percentage of total physical memory
+* Adding image_picker button on native camera with warning
+
 ## [0.0.2+1] - 2020-11-29
 
 * Upgrade cyblock module to v0.0.1+4

@@ -12,7 +12,7 @@ First of all, just initialize it in `main`
 ```dart
 void main() {
   runApp(MyApp());
-  ImagePick.instance.initializeAvailableCamera(500.0);
+  ImagePick.instance.initializeAvailableCamera(0.4);
 }
 ```
 

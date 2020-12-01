@@ -121,6 +121,66 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
     }
   }
 
+  getImageFromPicker() async {
+    var _sharePref = await SharedPreferences.getInstance();
+    bool _check = _sharePref.getBool("image_pick_warning");
+    if(_check == null || _check == false) {
+      if(ImagePick.warningPicker != null) {
+        bool _status = await ImagePick.warningPicker();
+        if(_status == true) {
+          _pickImageFromPicker();
+        }
+
+        return;
+      }
+
+      bool _status = await showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          title: Text("Peringatan"),
+          content: Text("Anda akan mengambil gambar dari kamera bawaan HP, dikarenakan memori yang kurang, terdapat kemungkinan nanti akan merestart aplikasi ini, apakah anda akan tetap ingin melanjutkan?"),
+          actions: [
+            FlatButton(
+              child: Text("Lanjutkan"),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+            FlatButton(
+              child: Text("Keluar"),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            )
+          ],
+        );
+      });
+
+      if(_status == true) {
+        _sharePref.setBool("image_pick_warning", true);
+        _pickImageFromPicker();
+      }
+
+      return;
+    }
+
+    _pickImageFromPicker();
+  }
+
+  _pickImageFromPicker() async {
+    PickedFile _pickedFile = await ImagePick.instance.getImage(ImagePickConfiguration(
+      imageSource: ImagePickSourcePicker(
+        pickerSource: PickerSource.camera,
+      ),
+      maxHeight: widget.config.maxHeight,
+      maxWidth: widget.config.maxWidth,
+      quality: widget.config.quality
+    ));
+
+    if(_pickedFile != null) {
+      Navigator.pop(context, _pickedFile);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -231,6 +291,7 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
                         _supportFlash == true ? CameraActionButton(
                           child: Icon(_lightStatus == true ? Icons.lightbulb : Icons.lightbulb_outline, color: Colors.white,),
                           onTap: () async {
+                            // TODO :: Adding flashlight
                             // if(_lightStatus == false) {
                             //   await Lamp.turnOn();
                             //   setState(() {
@@ -274,6 +335,26 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
 
                 return SizedBox();
               }
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).viewPadding.top + 20.0,
+            right: 20.0,
+            child: GestureDetector(
+              onTap: () {
+                getImageFromPicker();
+              },
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2.0
+                  ),
+                  shape: BoxShape.circle
+                ),
+                child: Icon(Icons.image, color: Colors.white,),
+              ),
             ),
           )
         ],

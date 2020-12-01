@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(MyApp());
-  ImagePick.instance.initializeAvailableCamera(500.0);
+  ImagePick.instance.initializeAvailableCamera(0.6);
 }
 
 class MyApp extends StatelessWidget {
@@ -45,6 +45,10 @@ class _HomeMainViewState extends State<HomeMainView> {
                 camera: ImagePickSourceCamera(context: context),
                 picker: ImagePickSourcePicker(pickerSource: PickerSource.camera),
               ));
+
+              // PickedFile _image = await ImagePick.instance.getImage(ImagePickConfiguration(
+              //   imageSource: ImagePickSourceCamera(context: context),
+              // ));
 
               setState(() {
                 _file = _image;
