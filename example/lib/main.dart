@@ -41,14 +41,14 @@ class _HomeMainViewState extends State<HomeMainView> {
           FloatingActionButton(
             child: Icon(Icons.camera_alt),
             onPressed: () async {
-              PickedFile _image = await ImagePick.instance.getImageWithMemoryDecision(ImagePickWithMemoryConfiguration(
-                camera: ImagePickSourceCamera(context: context),
-                picker: ImagePickSourcePicker(pickerSource: PickerSource.camera),
-              ));
-
-              // PickedFile _image = await ImagePick.instance.getImage(ImagePickConfiguration(
-              //   imageSource: ImagePickSourceCamera(context: context),
+              // PickedFile _image = await ImagePick.instance.getImageWithMemoryDecision(ImagePickWithMemoryConfiguration(
+              //   camera: ImagePickSourceCamera(context: context),
+              //   picker: ImagePickSourcePicker(pickerSource: PickerSource.camera),
               // ));
+
+              PickedFile _image = await ImagePick.instance.getImage(ImagePickConfiguration(
+                imageSource: ImagePickSourceCamera(context: context),
+              ));
 
               setState(() {
                 _file = _image;

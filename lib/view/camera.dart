@@ -24,21 +24,25 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused: {
+        print("Paused");
         // TODO :: onPaused
         break;
       }
 
       case AppLifecycleState.inactive: {
+        print("Inactive");
         // TODO :: onInactive
         break;
       }
 
       case AppLifecycleState.resumed: {
+        print("Resumed");
         // TODO :: onResumed
         break;
       }
 
       case AppLifecycleState.detached: {
+        print("Detached");
         // TODO :: onDetached
         break;
       }
@@ -69,6 +73,7 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
         _cameraController = new CameraController(widget.cameras[index], ResolutionPreset.high);
       });
     }
+
     _cameraController.initialize().then((_) {
       if(mounted) {
         setState(() {
@@ -97,7 +102,7 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
         Imagex.Image img = Imagex.decodeImage(new File(imgPath).readAsBytesSync());
         if ((widget.config.maxWidth > 0 && widget.config.maxWidth < img.width) || (widget.config.maxHeight > 0 && widget.config.maxHeight < img.height)) {
           bool isResized;
-          if (widget.config.maxWidth > 0 && img.width>= img.height) {
+          if (widget.config.maxWidth > 0 && img.width >= img.height) {
             img = Imagex.copyResize(img, width: widget.config.maxWidth.toInt());
             isResized = true;
 
@@ -167,6 +172,7 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
   }
 
   _pickImageFromPicker() async {
+    _cameraController?.dispose();
     PickedFile _pickedFile = await ImagePick.instance.getImage(ImagePickConfiguration(
       imageSource: ImagePickSourcePicker(
         pickerSource: PickerSource.camera,
@@ -178,6 +184,8 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
 
     if(_pickedFile != null) {
       Navigator.pop(context, _pickedFile);
+    } else {
+      initializeCamera(0);
     }
   }
 
