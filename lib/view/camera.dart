@@ -99,29 +99,40 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
         await _cameraController.takePicture(imgPath);
 
         // resizing if configured
-        Imagex.Image img = Imagex.decodeImage(new File(imgPath).readAsBytesSync());
-        if ((widget.config.maxWidth > 0 && widget.config.maxWidth < img.width) || (widget.config.maxHeight > 0 && widget.config.maxHeight < img.height)) {
-          bool isResized;
-          if (widget.config.maxWidth > 0 && img.width >= img.height) {
-            img = Imagex.copyResize(img, width: widget.config.maxWidth.toInt());
-            isResized = true;
+        File file = File(imgPath);
+        if(file != null) {
+          Imagex.Image img = Imagex.decodeImage(file.readAsBytesSync());
+          if ((widget.config.maxWidth > 0 && widget.config.maxWidth < img.width) || (widget.config.maxHeight > 0 && widget.config.maxHeight < img.height)) {
+            // bool isResized;
+            if (widget.config.maxWidth > 0 && img.width >= img.height) {
+              img = Imagex.copyResize(img, width: widget.config.maxWidth.toInt());
+              // isResized = true;
 
-          } else if (widget.config.maxHeight > 0) {
-            img = Imagex.copyResize(img, height: widget.config.maxHeight.toInt());
-            isResized = true;
+            } else if (widget.config.maxHeight > 0) {
+              img = Imagex.copyResize(img, height: widget.config.maxHeight.toInt());
+              // isResized = true;
+            }
+
+            // minimize unnecessary process
           }
 
-          // minimize unnecessary process
-          if (isResized) {
-            (new File(imgPath)).writeAsBytesSync(Imagex.encodeJpg(img));
-          }
+          Imagex.Image oriented = Imagex.bakeOrientation(img);
+
+          // if(img.width > img.height) {
+          //   oriented = Imagex.copyRotate(img, 90);
+          // } else {
+          //   oriented = img;
+          // }
+
+          File(imgPath).writeAsBytesSync(Imagex.encodeJpg(oriented));
+
+          PickedFile _file = PickedFile(imgPath);
+          _cameraCyblock.insertEvent(CameraEventPickImage(image: _file));
+        } else {
+          throw "Tidak bisa menemukan path";
         }
-
-        PickedFile _file = PickedFile(imgPath);
-        _cameraCyblock.insertEvent(CameraEventPickImage(image: _file));
-
       } catch (e) {
-        print("Tidak bisa Mengambil gambar");
+        Fluttertoast.showToast(msg: "Gagal mengambil gambar");
       }
     }
   }
@@ -217,6 +228,7 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
               ) : Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
+                color: Colors.grey[700],
                 child: StreamBuilder<CameraState>(
                   stream: _cameraCyblock.stream,
                   builder: (context, snapshot) {
@@ -233,7 +245,23 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
                       );
                     } else if(snapshot.data is CameraStatePicked) {
                       CameraStatePicked _data = snapshot.data;
-                      return Image.file(File(_data.image.path), fit: BoxFit.cover);
+                      return Center(
+                        child: SingleChildScrollView(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 10.0,
+                                  spreadRadius: 2.0,
+                                  color: Colors.black45,
+                                  offset: Offset(0, 5)
+                                )
+                              ]
+                            ),
+                            child: Image.file(File(_data.image.path),),
+                          ),
+                        ),
+                      );
                     }
 
                     return SizedBox();

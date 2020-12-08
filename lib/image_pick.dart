@@ -3,6 +3,7 @@ library image_pick;
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 // import 'package:camerawesome/camerapreview.dart';
 // import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:image_picker/image_picker.dart';

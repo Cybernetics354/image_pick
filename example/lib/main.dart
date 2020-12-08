@@ -48,6 +48,8 @@ class _HomeMainViewState extends State<HomeMainView> {
 
               PickedFile _image = await ImagePick.instance.getImage(ImagePickConfiguration(
                 imageSource: ImagePickSourceCamera(context: context),
+                maxHeight: 1400.0,
+                maxWidth: 1400.0
               ));
 
               setState(() {
