@@ -79,6 +79,9 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
         setState(() {
         });
       }
+    }).catchError((e) {
+      Fluttertoast.showToast(msg: "Tidak bisa membuka kamera");
+      Navigator.pop(context);
     });
   }
 

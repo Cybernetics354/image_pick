@@ -96,9 +96,13 @@ class ImagePick {
 
   Future initializeAvailableCamera(double memoryMin, {WarningPickerCallback warningPickerCallback}) async {
     WidgetsFlutterBinding.ensureInitialized();
-    _cameraDescription = await availableCameras();
-    _memoryPercentage = memoryMin;
-    warningPicker = warningPickerCallback;
+    try {
+      _cameraDescription = await availableCameras();
+      _memoryPercentage = memoryMin;
+      warningPicker = warningPickerCallback;
+    } catch (e) {
+      initializeAvailableCamera(memoryMin, warningPickerCallback: warningPickerCallback);
+    }
   }
 }
 
