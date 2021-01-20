@@ -1,3 +1,7 @@
+## [0.0.3+3] - 2021-01-07
+
+* Remove native image pick button on custom image pick to prevent crash
+
 ## [0.0.3+2] - 2021-01-07
 
 * Adding error handle when controller failed to initiate
