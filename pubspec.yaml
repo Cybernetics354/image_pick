@@ -16,7 +16,7 @@ dependencies:
   cyblock: ^0.0.1+4
 
   image_picker: ^0.6.7+14
-  fluttertoast:
+  fluttertoast: ^7.0.1+1
   camera: ^0.5.8+11
   image: ^2.1.19
   flutter:

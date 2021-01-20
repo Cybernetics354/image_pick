@@ -55,16 +55,6 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
   void initState() { 
     super.initState();
     initializeCamera(0);
-    getFlashlight();
-  }
-
-  getFlashlight() async {
-    // bool _flash = await Lamp.hasLamp;
-    // if(mounted) {
-    //   setState(() {
-    //     _supportFlash = _flash;
-    //   });
-    // }
   }
 
   initializeCamera(int index) {
@@ -120,12 +110,6 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
           }
 
           Imagex.Image oriented = Imagex.bakeOrientation(img);
-
-          // if(img.width > img.height) {
-          //   oriented = Imagex.copyRotate(img, 90);
-          // } else {
-          //   oriented = img;
-          // }
 
           File(imgPath).writeAsBytesSync(Imagex.encodeJpg(oriented));
 
@@ -376,26 +360,26 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
               }
             ),
           ),
-          Positioned(
-            top: MediaQuery.of(context).viewPadding.top + 20.0,
-            right: 20.0,
-            child: GestureDetector(
-              onTap: () {
-                getImageFromPicker();
-              },
-              child: Container(
-                padding: EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2.0
-                  ),
-                  shape: BoxShape.circle
-                ),
-                child: Icon(Icons.image, color: Colors.white,),
-              ),
-            ),
-          )
+          // Positioned(
+          //   top: MediaQuery.of(context).viewPadding.top + 20.0,
+          //   right: 20.0,
+          //   child: GestureDetector(
+          //     onTap: () {
+          //       getImageFromPicker();
+          //     },
+          //     child: Container(
+          //       padding: EdgeInsets.all(10.0),
+          //       decoration: BoxDecoration(
+          //         border: Border.all(
+          //           color: Colors.white,
+          //           width: 2.0
+          //         ),
+          //         shape: BoxShape.circle
+          //       ),
+          //       child: Icon(Icons.image, color: Colors.white,),
+          //     ),
+          //   ),
+          // )
         ],
       ),
     );
