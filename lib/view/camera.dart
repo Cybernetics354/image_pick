@@ -1,73 +1,78 @@
 part of image_pick;
 
 class CameraPickMainView extends StatefulWidget {
-  final List<CameraDescription> cameras;
+  final List<CameraDescription>? cameras;
   final ImagePickConfiguration config;
   CameraPickMainView({
-    @required this.cameras,
-    @required this.config,
+    required this.cameras,
+    required this.config,
   });
 
   @override
   _CameraPickMainViewState createState() => _CameraPickMainViewState();
 }
 
-class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBindingObserver {
+class _CameraPickMainViewState extends State<CameraPickMainView>
+    with WidgetsBindingObserver {
   int selectedCamera = 0;
-  bool _supportFlash;
+  bool? _supportFlash;
   bool _lightStatus = false;
 
   final CameraCyblock _cameraCyblock = new CameraCyblock();
-  CameraController _cameraController;
+  CameraController? _cameraController;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
-      case AppLifecycleState.paused: {
-        print("Paused");
-        // TODO :: onPaused
-        break;
-      }
+      case AppLifecycleState.paused:
+        {
+          print("Paused");
+          // TODO :: onPaused
+          break;
+        }
 
-      case AppLifecycleState.inactive: {
-        print("Inactive");
-        // TODO :: onInactive
-        break;
-      }
+      case AppLifecycleState.inactive:
+        {
+          print("Inactive");
+          // TODO :: onInactive
+          break;
+        }
 
-      case AppLifecycleState.resumed: {
-        print("Resumed");
-        // TODO :: onResumed
-        break;
-      }
+      case AppLifecycleState.resumed:
+        {
+          print("Resumed");
+          // TODO :: onResumed
+          break;
+        }
 
-      case AppLifecycleState.detached: {
-        print("Detached");
-        // TODO :: onDetached
-        break;
-      }
-        
+      case AppLifecycleState.detached:
+        {
+          print("Detached");
+          // TODO :: onDetached
+          break;
+        }
+
       default:
     }
   }
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
     initializeCamera(0);
   }
 
   initializeCamera(int index) {
-    if(mounted) {
+    if (mounted) {
       setState(() {
-        _cameraController = new CameraController(widget.cameras[index], ResolutionPreset.high);
+        _cameraController =
+            new CameraController(widget.cameras![index], ResolutionPreset.high);
       });
     }
 
-    _cameraController.initialize().then((_) {
-      if(mounted) {
-        setState(() {
-        });
+    _cameraController!.initialize().then((_) {
+      if (mounted) {
+        setState(() {});
       }
     }).catchError((e) {
       Fluttertoast.showToast(msg: "Tidak bisa membuka kamera");
@@ -76,40 +81,45 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
   }
 
   getImage() async {
-    Directory _appdirectory;
+    Directory? _appdirectory;
     try {
       _appdirectory = await getApplicationDocumentsDirectory();
     } catch (e) {
       print("Tidak bisa mengambil path");
     }
 
-    if(_appdirectory != null) {
+    if (_appdirectory != null) {
       String path = _appdirectory.path;
       String imageName = DateTime.now().toString();
 
       try {
         String imgPath = "$path/$imageName.jpg";
-        await _cameraController.takePicture(imgPath);
+        final xFile = await _cameraController!.takePicture();
 
         // resizing if configured
-        File file = File(imgPath);
-        if(file != null) {
-          Imagex.Image img = Imagex.decodeImage(file.readAsBytesSync());
-          if ((widget.config.maxWidth > 0 && widget.config.maxWidth < img.width) || (widget.config.maxHeight > 0 && widget.config.maxHeight < img.height)) {
+        //File file = File(imgPath);
+        if (xFile != null) {
+          Imagex.Image? img = Imagex.decodeImage(await xFile.readAsBytes());
+          if ((widget.config.maxWidth! > 0 &&
+                  widget.config.maxWidth! < img!.width) ||
+              (widget.config.maxHeight! > 0 &&
+                  widget.config.maxHeight! < img!.height)) {
             // bool isResized;
-            if (widget.config.maxWidth > 0 && img.width >= img.height) {
-              img = Imagex.copyResize(img, width: widget.config.maxWidth.toInt());
+            if (widget.config.maxWidth! > 0 && img.width >= img.height) {
+              img =
+                  Imagex.copyResize(img, width: widget.config.maxWidth!.toInt());
               // isResized = true;
 
-            } else if (widget.config.maxHeight > 0) {
-              img = Imagex.copyResize(img, height: widget.config.maxHeight.toInt());
+            } else if (widget.config.maxHeight! > 0) {
+              img = Imagex.copyResize(img,
+                  height: widget.config.maxHeight!.toInt());
               // isResized = true;
             }
 
             // minimize unnecessary process
           }
 
-          Imagex.Image oriented = Imagex.bakeOrientation(img);
+          Imagex.Image oriented = Imagex.bakeOrientation(img!);
 
           File(imgPath).writeAsBytesSync(Imagex.encodeJpg(oriented));
 
@@ -126,39 +136,42 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
 
   getImageFromPicker() async {
     var _sharePref = await SharedPreferences.getInstance();
-    bool _check = _sharePref.getBool("image_pick_warning");
-    if(_check == null || _check == false) {
-      if(ImagePick.warningPicker != null) {
-        bool _status = await ImagePick.warningPicker();
-        if(_status == true) {
+    bool? _check = _sharePref.getBool("image_pick_warning");
+    if (_check == null || _check == false) {
+      if (ImagePick.warningPicker != null) {
+        bool _status = await ImagePick.warningPicker!();
+        if (_status == true) {
           _pickImageFromPicker();
         }
 
         return;
       }
 
-      bool _status = await showDialog(context: context, builder: (context) {
-        return AlertDialog(
-          title: Text("Peringatan"),
-          content: Text("Anda akan mengambil gambar dari kamera bawaan HP, dikarenakan memori yang kurang, terdapat kemungkinan nanti akan merestart aplikasi ini, apakah anda akan tetap ingin melanjutkan?"),
-          actions: [
-            FlatButton(
-              child: Text("Lanjutkan"),
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-            ),
-            FlatButton(
-              child: Text("Keluar"),
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
-            )
-          ],
-        );
-      });
+      bool? _status = await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Peringatan"),
+              content: Text(
+                  "Anda akan mengambil gambar dari kamera bawaan HP, dikarenakan memori yang kurang, terdapat kemungkinan nanti akan merestart aplikasi ini, apakah anda akan tetap ingin melanjutkan?"),
+              actions: [
+                FlatButton(
+                  child: Text("Lanjutkan"),
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                ),
+                FlatButton(
+                  child: Text("Keluar"),
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                )
+              ],
+            );
+          });
 
-      if(_status == true) {
+      if (_status == true) {
         _sharePref.setBool("image_pick_warning", true);
         _pickImageFromPicker();
       }
@@ -171,16 +184,16 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
 
   _pickImageFromPicker() async {
     _cameraController?.dispose();
-    PickedFile _pickedFile = await ImagePick.instance.getImage(ImagePickConfiguration(
-      imageSource: ImagePickSourcePicker(
-        pickerSource: PickerSource.camera,
-      ),
-      maxHeight: widget.config.maxHeight,
-      maxWidth: widget.config.maxWidth,
-      quality: widget.config.quality
-    ));
+    PickedFile? _pickedFile =
+        await ImagePick.instance.getImage(ImagePickConfiguration(
+            imageSource: ImagePickSourcePicker(
+              pickerSource: PickerSource.camera,
+            ),
+            maxHeight: widget.config.maxHeight,
+            maxWidth: widget.config.maxWidth,
+            quality: widget.config.quality));
 
-    if(_pickedFile != null) {
+    if (_pickedFile != null) {
       Navigator.pop(context, _pickedFile);
     } else {
       initializeCamera(0);
@@ -208,53 +221,54 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
                   ),
                 );
               },
-              child: !_cameraController.value.isInitialized ? Container(
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ) : Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                color: Colors.grey[700],
-                child: StreamBuilder<CameraState>(
-                  stream: _cameraCyblock.stream,
-                  builder: (context, snapshot) {
-                    if(snapshot.connectionState == ConnectionState.waiting) {
-                      _cameraCyblock.getState();
-                      return Center(
+              child: !_cameraController!.value.isInitialized
+                  ? Container(
+                      child: Center(
                         child: CircularProgressIndicator(),
-                      );
-                    }
+                      ),
+                    )
+                  : Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      color: Colors.grey[700],
+                      child: StreamBuilder<CameraState>(
+                          stream: _cameraCyblock.stream,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              _cameraCyblock.getState();
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
 
-                    if(snapshot.data is CameraStateEmpty) {
-                      return CameraPreview(
-                        _cameraController,
-                      );
-                    } else if(snapshot.data is CameraStatePicked) {
-                      CameraStatePicked _data = snapshot.data;
-                      return Center(
-                        child: SingleChildScrollView(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  blurRadius: 10.0,
-                                  spreadRadius: 2.0,
-                                  color: Colors.black45,
-                                  offset: Offset(0, 5)
-                                )
-                              ]
-                            ),
-                            child: Image.file(File(_data.image.path),),
-                          ),
-                        ),
-                      );
-                    }
+                            if (snapshot.data is CameraStateEmpty) {
+                              return CameraPreview(
+                                _cameraController!,
+                              );
+                            } else if (snapshot.data is CameraStatePicked) {
+                              CameraStatePicked _data = snapshot.data as CameraStatePicked;
+                              return Center(
+                                child: SingleChildScrollView(
+                                  child: Container(
+                                    decoration: BoxDecoration(boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 10.0,
+                                          spreadRadius: 2.0,
+                                          color: Colors.black45,
+                                          offset: Offset(0, 5))
+                                    ]),
+                                    child: Image.file(
+                                      File(_data.image.path),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
 
-                    return SizedBox();
-                  }
-                ),
-              ),
+                            return SizedBox();
+                          }),
+                    ),
             ),
           ),
           Positioned(
@@ -262,103 +276,120 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
             left: 0.0,
             right: 0.0,
             child: StreamBuilder<CameraState>(
-              stream: _cameraCyblock.stream,
-              builder: (context, snapshot) {
-                if(snapshot.connectionState == ConnectionState.waiting) {
-                  _cameraCyblock.emitValue();
-                  return SizedBox();
-                }
+                stream: _cameraCyblock.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    _cameraCyblock.emitValue();
+                    return SizedBox();
+                  }
 
-                if(snapshot.data is CameraStateEmpty) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 40.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        widget.cameras.length == 2 ? CameraActionButton(
-                          child: Icon(Icons.rotate_left, color: Colors.white,),
-                          onTap: () {
-                            if(selectedCamera == 0) {
-                              initializeCamera(1);
-                              setState(() {
-                                selectedCamera = 1;
-                              });
-                            } else if(selectedCamera == 1) {
-                              initializeCamera(0);
-                              setState(() {
-                                selectedCamera = 0;
-                              });
-                            }
-                          },
-                        ) : SizedBox(),
-                        GestureDetector(
-                          onTap: () {
-                            getImage();
-                          },
-                          child: Container(
-                            width: 70.0,
-                            height: 70.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.transparent,
-                              border: Border.all(
+                  if (snapshot.data is CameraStateEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 40.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          widget.cameras!.length == 2
+                              ? CameraActionButton(
+                                  child: Icon(
+                                    Icons.rotate_left,
+                                    color: Colors.white,
+                                  ),
+                                  onTap: () {
+                                    if (selectedCamera == 0) {
+                                      initializeCamera(1);
+                                      setState(() {
+                                        selectedCamera = 1;
+                                      });
+                                    } else if (selectedCamera == 1) {
+                                      initializeCamera(0);
+                                      setState(() {
+                                        selectedCamera = 0;
+                                      });
+                                    }
+                                  },
+                                )
+                              : SizedBox(),
+                          GestureDetector(
+                            onTap: () {
+                              getImage();
+                            },
+                            child: Container(
+                              width: 70.0,
+                              height: 70.0,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.transparent,
+                                  border: Border.all(
+                                      color: Colors.white, width: 2.0)),
+                              child: Center(
+                                  child: Icon(
+                                Icons.camera,
                                 color: Colors.white,
-                                width: 2.0
-                              )
-                            ),
-                            child: Center(
-                              child: Icon(Icons.camera, color: Colors.white, size: 40.0,)
+                                size: 40.0,
+                              )),
                             ),
                           ),
-                        ),
-                        _supportFlash == true ? CameraActionButton(
-                          child: Icon(_lightStatus == true ? Icons.lightbulb : Icons.lightbulb_outline, color: Colors.white,),
-                          onTap: () async {
-                            // TODO :: Adding flashlight
-                            // if(_lightStatus == false) {
-                            //   await Lamp.turnOn();
-                            //   setState(() {
-                            //     _lightStatus = false;
-                            //   });
-                            // } else {
-                            //   await Lamp.turnOff();
-                            //   setState(() {
-                            //     _lightStatus = true;
-                            //   });
-                            // }
-                          },
-                        ) : SizedBox(width: 50.0,)
-                      ],
-                    ),
-                  );
-                } else if(snapshot.data is CameraStatePicked) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 40.0),
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CameraActionButton(
-                          child: Icon(Icons.close, color: Colors.white,),
-                          onTap: () {
-                            _cameraCyblock.insertEvent(CameraEventPickAgain());
-                          },
-                        ),
-                        CameraActionButton(
-                          child: Icon(Icons.check, color: Colors.white),
-                          onTap: () {
-                            CameraStatePicked _state = _cameraCyblock.state;
-                            Navigator.pop(context, _state.image);
-                          },
-                        )
-                      ],
-                    ),
-                  );
-                }
+                          _supportFlash == true
+                              ? CameraActionButton(
+                                  child: Icon(
+                                    _lightStatus == true
+                                        ? Icons.lightbulb
+                                        : Icons.lightbulb_outline,
+                                    color: Colors.white,
+                                  ),
+                                  onTap: () async {
+                                    // TODO :: Adding flashlight
+                                    // if(_lightStatus == false) {
+                                    //   await Lamp.turnOn();
+                                    //   setState(() {
+                                    //     _lightStatus = false;
+                                    //   });
+                                    // } else {
+                                    //   await Lamp.turnOff();
+                                    //   setState(() {
+                                    //     _lightStatus = true;
+                                    //   });
+                                    // }
+                                  },
+                                )
+                              : SizedBox(
+                                  width: 50.0,
+                                )
+                        ],
+                      ),
+                    );
+                  } else if (snapshot.data is CameraStatePicked) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 40.0),
+                      width: MediaQuery.of(context).size.width,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CameraActionButton(
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              _cameraCyblock
+                                  .insertEvent(CameraEventPickAgain());
+                            },
+                          ),
+                          CameraActionButton(
+                            child: Icon(Icons.check, color: Colors.white),
+                            onTap: () {
+                              CameraStatePicked _state = _cameraCyblock.state as CameraStatePicked;
+                              Navigator.pop(context, _state.image);
+                            },
+                          )
+                        ],
+                      ),
+                    );
+                  }
 
-                return SizedBox();
-              }
-            ),
+                  return SizedBox();
+                }),
           ),
           // Positioned(
           //   top: MediaQuery.of(context).viewPadding.top + 20.0,
@@ -389,30 +420,23 @@ class _CameraPickMainViewState extends State<CameraPickMainView> with WidgetsBin
 class CameraActionButton extends StatelessWidget {
   final Widget child;
   final VoidCallback onTap;
-  CameraActionButton({
-    @required this.child,
-    @required this.onTap
-  });
+  CameraActionButton({required this.child, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 50.0,
-        height: 50.0,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.transparent,
-          border: Border.all(
-            color: Colors.white,
-            width: 2.0
+          width: 50.0,
+          height: 50.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.transparent,
+            border: Border.all(color: Colors.white, width: 2.0),
           ),
-        ),
-        child: Center(
-          child: child,
-        )
-      ),
+          child: Center(
+            child: child,
+          )),
     );
   }
 }

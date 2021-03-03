@@ -6,8 +6,8 @@ class CameraStatePicked extends CameraState {
   final PickedFile image;
   final ImageOrientationState orientation; 
   CameraStatePicked({
-    @required this.image,
-    @required this.orientation
+    required this.image,
+    required this.orientation
   });
 }
 
