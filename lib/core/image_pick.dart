@@ -1,9 +1,9 @@
 part of image_pick;
 
 class ImagePick {
-  static List<CameraDescription> _cameraDescription;
-  static double _memoryPercentage;
-  static WarningPickerCallback warningPicker;
+  static List<CameraDescription>? _cameraDescription;
+  static late double _memoryPercentage;
+  static WarningPickerCallback? warningPicker;
 
   static final ImagePick _singleton = ImagePick._();
   ImagePick._();
@@ -11,7 +11,7 @@ class ImagePick {
 
   final ImagePicker _imagePicker = new ImagePicker();
 
-  Future<PickedFile> getImage(ImagePickConfiguration configuration) async {
+  Future<PickedFile?> getImage(ImagePickConfiguration configuration) async {
     var _source = configuration.imageSource;
     if(_source is ImagePickSourcePicker) {
       return await _getImageWithImagePicker(configuration);
@@ -22,13 +22,13 @@ class ImagePick {
     return null;
   }
   
-  Future<PickedFile> getImageWithMemoryDecision(ImagePickWithMemoryConfiguration configuration) async {
+  Future<PickedFile?> getImageWithMemoryDecision(ImagePickWithMemoryConfiguration configuration) async {
     double decrement = 1024.0 * 1024.0;
     double _physicalMemory = double.parse((SysInfo.getFreePhysicalMemory() + SysInfo.getFreeVirtualMemory()).toString());
 
     double _currentMemoryInMB = _physicalMemory / decrement;
     double _memoryMinumum = (double.parse(SysInfo.getTotalPhysicalMemory().toString()) / decrement) * _memoryPercentage;
-    if(configuration.picker.pickerSource == PickerSource.camera) {
+    if(configuration.picker!.pickerSource == PickerSource.camera) {
       if(_currentMemoryInMB > _memoryMinumum) {
         return await getImage(ImagePickConfiguration(
           imageSource: configuration.picker,
@@ -54,8 +54,8 @@ class ImagePick {
     ));
   }
 
-  Future<PickedFile> _getImageWithImagePicker(ImagePickConfiguration configuration) async {
-    ImagePickSourcePicker _source = configuration.imageSource;
+  Future<PickedFile?> _getImageWithImagePicker(ImagePickConfiguration configuration) async {
+    ImagePickSourcePicker _source = configuration.imageSource as ImagePickSourcePicker;
     ImageSource _imageSource;
     switch (_source.pickerSource) {
       case PickerSource.camera: {
@@ -73,7 +73,7 @@ class ImagePick {
       }
     }
 
-    PickedFile _pickedFile = await _imagePicker.getImage(
+    PickedFile? _pickedFile = await _imagePicker.getImage(
       source: _imageSource,
       maxHeight: configuration.maxHeight,
       maxWidth: configuration.maxWidth,
@@ -83,10 +83,10 @@ class ImagePick {
     return _pickedFile;
   }
 
-  Future<PickedFile> _getImageFromCamera(ImagePickConfiguration configuration) async {
-    ImagePickSourceCamera _source = configuration.imageSource;
-    if(_cameraDescription != null && _cameraDescription.length != 0) {
-      return await Navigator.push(_source.context, MaterialPageRoute(
+  Future<PickedFile?> _getImageFromCamera(ImagePickConfiguration configuration) async {
+    ImagePickSourceCamera? _source = configuration.imageSource as ImagePickSourceCamera?;
+    if(_cameraDescription != null && _cameraDescription!.length != 0) {
+      return await Navigator.push(_source!.context!, MaterialPageRoute(
         builder: (_) => CameraPickMainView(cameras: _cameraDescription, config: configuration)
       ));
     } else {
@@ -94,7 +94,7 @@ class ImagePick {
     }
   }
 
-  Future initializeAvailableCamera(double memoryMin, {WarningPickerCallback warningPickerCallback}) async {
+  Future initializeAvailableCamera(double memoryMin, {WarningPickerCallback? warningPickerCallback}) async {
     WidgetsFlutterBinding.ensureInitialized();
     try {
       _cameraDescription = await availableCameras();

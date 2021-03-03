@@ -5,7 +5,7 @@ abstract class CameraEvent {}
 class CameraEventPickImage extends CameraEvent {
   final PickedFile image;
   CameraEventPickImage({
-    @required this.image
+    required this.image
   });
 }
 

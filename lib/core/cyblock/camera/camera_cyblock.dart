@@ -13,7 +13,7 @@ class CameraCyblock extends Cyblock<CameraState, CameraEvent> {
   }
 
   _cameraPick(PickedFile image) {
-    Imagex.Image img = Imagex.decodeImage(File(image.path).readAsBytesSync());
+    Imagex.Image img = Imagex.decodeImage(File(image.path).readAsBytesSync())!;
     ImageOrientationState orientationState;
 
     if(img.width > img.height) {

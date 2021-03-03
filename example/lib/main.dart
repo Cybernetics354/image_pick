@@ -25,7 +25,7 @@ class HomeMainView extends StatefulWidget {
 }
 
 class _HomeMainViewState extends State<HomeMainView> {
-  PickedFile _file;
+  PickedFile? _file;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +33,7 @@ class _HomeMainViewState extends State<HomeMainView> {
         title: Text("Image pick"),
       ),
       body: Center(
-        child: _file != null ? Image.file(File(_file.path),) : SizedBox(),
+        child: _file != null ? Image.file(File(_file!.path),) : SizedBox(),
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -46,7 +46,7 @@ class _HomeMainViewState extends State<HomeMainView> {
               //   picker: ImagePickSourcePicker(pickerSource: PickerSource.camera),
               // ));
 
-              PickedFile _image = await ImagePick.instance.getImage(ImagePickConfiguration(
+              PickedFile? _image = await ImagePick.instance.getImage(ImagePickConfiguration(
                 imageSource: ImagePickSourceCamera(context: context),
                 maxHeight: 1400.0,
                 maxWidth: 1400.0
